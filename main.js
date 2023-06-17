@@ -1,113 +1,107 @@
 const apiKey = '9b718451';
 
+
+// DOM Elements
 const searchInput = document.getElementById('search-input');
 const searchButton = document.getElementById('search-button');
 const resultsContainer = document.getElementById('results-container');
-const movieDetails = document.getElementById('movie-details');
-const movieTitle = document.getElementById('movie-title');
-const modal = document.getElementById('modal');
-const closeButton = document.querySelector('.close-button');
 const modalOverlay = document.querySelector('.modal-overlay');
-const detailsButton = document.createElement('button');
+const modal = document.getElementById('modal');
+const movieTitle = document.getElementById('movie-title');
+const movieDetails = document.getElementById('movie-details');
 
 // Event listeners
-modalOverlay.addEventListener('click', closeModal);
-closeButton.addEventListener('click', closeModal);
 searchButton.addEventListener('click', searchMovies);
+resultsContainer.addEventListener('click', handleResultClick);
+modalOverlay.addEventListener('click', closeModal);
 
-// Close modal function
-function closeModal() {
-  modal.style.display = 'none';
-  modalOverlay.style.display = 'none';
-}
+// Functions
 
-// Search movies function
+// Perform a search when the user clicks the search button
 function searchMovies() {
   const searchTerm = searchInput.value.trim();
 
-  if (searchTerm === '') {
-    return;
-  }
+  // Clear previous results
+  resultsContainer.innerHTML = '';
 
-  const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${searchTerm}`;
-
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
+  // Make API request
+  fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(searchTerm)}`)
+    .then(response => response.json())
+    .then(data => {
       if (data.Response === 'True') {
-        displayMovies(data.Search);
+        displayResults(data.Search);
       } else {
-        displayErrorMessage(data.Error);
+        displayError('No results found.');
       }
     })
-    .catch((error) => {
-      console.log(error);
-      displayErrorMessage('An error occurred. Please try again.');
+    .catch(error => {
+      displayError('An error occurred. Please try again later.');
+      console.error(error);
     });
 }
 
-// Display movies function
-function displayMovies(movies) {
-  resultsContainer.innerHTML = '';
-
-  movies.forEach((movie) => {
+// Display the search results
+function displayResults(movies) {
+  movies.forEach(movie => {
     const movieCard = createMovieCard(movie);
     resultsContainer.appendChild(movieCard);
   });
 }
 
-// Create movie card function
+// Create a movie card element
 function createMovieCard(movie) {
   const movieCard = document.createElement('div');
   movieCard.classList.add('movie-card');
-  movieCard.id = movie.imdbID;
+
+  const img = document.createElement('img');
+  img.src = movie.Poster;
+  img.alt = movie.Title;
+  movieCard.appendChild(img);
 
   const title = document.createElement('h3');
   title.textContent = movie.Title;
-
-  const poster = document.createElement('img');
-  poster.src = movie.Poster === 'N/A' ? 'placeholder.png' : movie.Poster;
-  poster.alt = movie.Title;
+  movieCard.appendChild(title);
 
   const year = document.createElement('p');
   year.textContent = movie.Year;
-
-  const detailsButton = document.createElement('button');
-  detailsButton.textContent = 'View Details';
-  detailsButton.classList.add('view-details-button'); // Add class to button
-
-  detailsButton.addEventListener('click', () => {
-    detailsButton.textContent = 'Loading...';
-    detailsButton.disabled = true;
-    openModal(movie.imdbID);
-    fetchMovieDetails(movie.imdbID);
-  });
-
-  movieCard.appendChild(title);
-  movieCard.appendChild(poster);
   movieCard.appendChild(year);
-  movieCard.appendChild(detailsButton);
+
+  const viewDetailsButton = document.createElement('button');
+  viewDetailsButton.classList.add('view-details-button');
+  viewDetailsButton.textContent = 'View Details';
+  viewDetailsButton.addEventListener('click', (event) => {
+    event.stopPropagation(); // Prevent the click event from propagating to the movie card
+    const imdbID = movie.imdbID;
+    fetchMovieDetails(imdbID, viewDetailsButton);
+  });
+  movieCard.appendChild(viewDetailsButton);
 
   return movieCard;
 }
 
-// Open modal function
-function openModal(movieId) {
-  modal.style.display = 'block';
-  modalOverlay.style.display = 'block';
-  movieDetails.innerHTML = '';
-  movieTitle.textContent = 'Loading...';
+// Handle clicks on the result cards or the view details button
+function handleResultClick(event) {
+  const movieCard = event.target.closest('.movie-card');
+  if (movieCard) {
+    const imdbID = movieCard.dataset.imdbId;
+    const viewDetailsButton = movieCard.querySelector('.view-details-button');
+    fetchMovieDetails(imdbID, viewDetailsButton);
+  }
 }
 
 // Fetch movie details function
-function fetchMovieDetails(movieId) {
+function fetchMovieDetails(movieId, detailsButton) {
   const url = `https://www.omdbapi.com/?apikey=${apiKey}&i=${movieId}&plot=full`;
+
+  detailsButton.textContent = 'Loading...';
+  detailsButton.disabled = true;
 
   fetch(url)
     .then((response) => response.json())
     .then((data) => {
       if (data.Response === 'True') {
         displayMovieDetails(data);
+        showModal(); // Show the modal after fetching and displaying the details
       } else {
         displayMovieDetailsError(data.Error);
       }
@@ -122,35 +116,49 @@ function fetchMovieDetails(movieId) {
     });
 }
 
-// Display movie details function
+
+
+// Display additional movie details in the modal
 function displayMovieDetails(movie) {
   movieTitle.textContent = movie.Title;
 
-  const detailsList = document.createElement('ul');
-  detailsList.innerHTML = `
-    <li><strong>Genre:</strong> ${movie.Genre}</li>
-    <li><strong>Released:</strong> ${movie.Released}</li>
-    <li><strong>Runtime:</strong> ${movie.Runtime}</li>
-    <li><strong>Director:</strong> ${movie.Director}</li>
-    <li><strong>Actors:</strong> ${movie.Actors}</li>
-    <li><strong>Plot:</strong> ${movie.Plot}</li>
+  movieDetails.innerHTML = `
+    <p><strong>Plot:</strong> ${movie.Plot}</p>
+    <p><strong>Director:</strong> ${movie.Director}</p>
+    <p><strong>Actors:</strong> ${movie.Actors}</p>
+    <p><strong>Genre:</strong> ${movie.Genre}</p>
+    <p><strong>Released:</strong> ${movie.Released}</p>
+    <p><strong>Runtime:</strong> ${movie.Runtime}</p>
+    <p><strong>IMDb Rating:</strong> ${movie.imdbRating}</p>
   `;
-
-  movieDetails.appendChild(detailsList);
 }
 
 // Display movie details error function
 function displayMovieDetailsError(errorMessage) {
-  movieTitle.textContent = 'Error';
-  const errorParagraph = document.createElement('p');
-  errorParagraph.textContent = errorMessage;
-  movieDetails.appendChild(errorParagraph);
+  const errorElement = document.createElement('p');
+  errorElement.textContent = errorMessage;
+
+  const detailsContainer = document.getElementById('movie-details');
+  detailsContainer.appendChild(errorElement);
+
+  // Show the details container
+  detailsContainer.style.display = 'block';
 }
 
-// Display error message function
-function displayErrorMessage(errorMessage) {
-  resultsContainer.innerHTML = '';
-  const errorParagraph = document.createElement('p');
-  errorParagraph.textContent = errorMessage;
-  resultsContainer.appendChild(errorParagraph);
+
+// Show the modal
+function showModal() {
+  modalOverlay.style.display = 'block';
+}
+
+// Close the modal
+function closeModal() {
+  modalOverlay.style.display = 'none';
+}
+
+// Display an error message
+function displayError(message) {
+  const errorText = document.createElement('p');
+  errorText.textContent = message;
+  resultsContainer.appendChild(errorText);
 }
