@@ -72,7 +72,10 @@ function createMovieCard(movie) {
   const year = document.createElement('p');
   year.textContent = movie.Year;
 
+  const detailsButton = document.createElement('button');
   detailsButton.textContent = 'View Details';
+  detailsButton.classList.add('view-details-button'); // Add class to button
+
   detailsButton.addEventListener('click', () => {
     detailsButton.textContent = 'Loading...';
     detailsButton.disabled = true;
