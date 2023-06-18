@@ -1,6 +1,4 @@
 const apiKey = '9b718451';
-let currentPage = 1;
-let totalPages = 1;
 
 
 
@@ -28,11 +26,10 @@ function searchMovies() {
   resultsContainer.innerHTML = '';
 
   // Make API request
-  fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(searchTerm)}&page=${currentPage}`)
+  fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(searchTerm)}`)
     .then(response => response.json())
     .then(data => {
       if (data.Response === 'True') {
-        totalPages = Math.ceil(data.totalResults / 10); // Calculate the total number of pages
         displayResults(data.Search);
       } else {
         displayError('No results found.');
@@ -43,15 +40,6 @@ function searchMovies() {
       console.error(error);
     });
 }
-
-function loadMoreResults() {
-  if (currentPage < totalPages) {
-    currentPage++;
-    searchMovies();
-  }
-  
-}
-
 
 // Display the search results
 function displayResults(movies) {
