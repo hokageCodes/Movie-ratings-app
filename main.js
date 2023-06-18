@@ -26,7 +26,7 @@ function searchMovies() {
   resultsContainer.innerHTML = '';
 
   // Make API request
-  fetch(`http://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(searchTerm)}`)
+  fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(searchTerm)}`)
     .then(response => response.json())
     .then(data => {
       if (data.Response === 'True') {
