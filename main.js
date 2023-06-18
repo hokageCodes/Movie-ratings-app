@@ -282,18 +282,41 @@ function displayResults(movies) {
 
 // Display movie details and additional movie details in the modal
 function displayMovieDetails(movie) {
-  movieTitle.textContent = movie.Title;
+  movieTitle.textContent = movie.title;
 
   movieDetails.innerHTML = `
-    <p><strong>Plot:</strong> ${movie.Plot}</p>
-    <p><strong>Director:</strong> ${movie.Director}</p>
-    <p><strong>Actors:</strong> ${movie.Actors}</p>
-    <p><strong>Genre:</strong> ${movie.Genre}</p>
-    <p><strong>Released:</strong> ${movie.Released}</p>
-    <p><strong>Runtime:</strong> ${movie.Runtime}</p>
-    <p><strong>IMDb Rating:</strong> ${movie.imdbRating}</p>
+    <p><strong>Plot:</strong> ${movie.overview}</p>
+    <p><strong>Director:</strong> ${getDirectors(movie)}</p>
+    <p><strong>Actors:</strong> ${getActors(movie)}</p>
+    <p><strong>Genre:</strong> ${getGenres(movie)}</p>
+    <p><strong>Released:</strong> ${movie.release_date}</p>
+    <p><strong>Runtime:</strong> ${movie.runtime} minutes</p>
+    <p><strong>TMDB Rating:</strong> ${movie.vote_average}</p>
   `;
 }
+
+// Helper functions to extract director, actor, and genre information
+function getDirectors(movie) {
+  if (movie.directors && movie.directors.length > 0) {
+    return movie.directors.map(director => director.name).join(', ');
+  }
+  return 'N/A';
+}
+
+function getActors(movie) {
+  if (movie.cast && movie.cast.length > 0) {
+    return movie.cast.map(actor => actor.name).join(', ');
+  }
+  return 'N/A';
+}
+
+function getGenres(movie) {
+  if (movie.genres && movie.genres.length > 0) {
+    return movie.genres.map(genre => genre.name).join(', ');
+  }
+  return 'N/A';
+}
+
 
 // Expand the plot text to show the full content
 function expandPlotText() {
