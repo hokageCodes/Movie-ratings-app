@@ -1,4 +1,5 @@
 const apiKey = '9b718451';
+const apiKeytmdb = '1c8c506c2972c4d18841252b9b749fa4';
 
 // DOM Elements
 const searchInput = document.getElementById('search-input');
@@ -47,7 +48,7 @@ let isLoading = false; // Flag to prevent multiple simultaneous API requests
 
 // Functions
 
-// Fetch random movies from the API
+// Fetch random movies by popularity from the API
 function fetchRandomMovies() {
   if (isLoading) return;
 
@@ -56,16 +57,16 @@ function fetchRandomMovies() {
   // Simulate loading state
   showLoadingState();
 
-  const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=&type=movie&page=1&r=json&y=&plot=short`;
+  const url = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKeytmdb}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1`;
 
   // Make API request
   fetch(url)
     .then((response) => response.json())
     .then((data) => {
-      if (data.Response === 'True') {
-        displayResults(data.Search);
+      if (data.results && data.results.length > 0) {
+        displayResults(data.results, 'random-movies-container');
       } else {
-        displayError('Random movies suppose dey show here but bug wan kill me');
+        displayError('An error occurred while fetching random movies.');
       }
     })
     .catch((error) => {
@@ -156,16 +157,16 @@ function createMovieCard(movie) {
   movieCard.classList.add('movie-card');
 
   const img = document.createElement('img');
-  img.src = movie.Poster;
-  img.alt = movie.Title;
+  img.src = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+  img.alt = movie.title;
   movieCard.appendChild(img);
 
   const title = document.createElement('h3');
-  title.textContent = movie.Title;
+  title.textContent = movie.title;
   movieCard.appendChild(title);
 
   const year = document.createElement('p');
-  year.textContent = movie.Year;
+  year.textContent = movie.release_date;
   movieCard.appendChild(year);
 
   const viewDetailsButton = document.createElement('button');
@@ -173,8 +174,8 @@ function createMovieCard(movie) {
   viewDetailsButton.textContent = 'View Details';
   viewDetailsButton.addEventListener('click', (event) => {
     event.stopPropagation(); // Prevent the click event from propagating to the movie card
-    const imdbID = movie.imdbID;
-    fetchMovieDetails(imdbID, viewDetailsButton);
+    const movieId = movie.id;
+    fetchMovieDetails(movieId, viewDetailsButton);
   });
   movieCard.appendChild(viewDetailsButton);
 

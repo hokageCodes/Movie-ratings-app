@@ -196,3 +196,10 @@ h1 {
 #scroll-to-top-button:hover {
   opacity: 0.8;
 }
+
+/* Additional styles for the advertisement cards */
+
+.advertisement-card {
+  background-color: #f5f5f5;
+  /* Add any additional styling as desired */
+}
