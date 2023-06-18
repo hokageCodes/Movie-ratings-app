@@ -148,3 +148,50 @@ h1 {
   font-size: 24px;
   cursor: pointer;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.page-link {
+  padding: 10px;
+  margin: 0 5px;
+  font-size: 14px;
+  background-color: #e50914;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.page-link:hover {
+  background-color: #d30c11;
+}
+
+.page-link.active {
+  background-color: #d30c11;
+}
+
+#scroll-to-top-button {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: #e50914;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 999;
+  transition: opacity 0.3s ease;
+}
+
+#scroll-to-top-button:hover {
+  opacity: 0.8;
+}

@@ -1,12 +1,12 @@
 const apiKey = '9b718451';
 
-
-
 // DOM Elements
 const searchInput = document.getElementById('search-input');
 const searchButton = document.getElementById('search-button');
 const resultsContainer = document.getElementById('results-container');
 const modalOverlay = document.querySelector('.modal-overlay');
+const closeButton = document.querySelector('.close-button');
+
 const modal = document.getElementById('modal');
 const movieTitle = document.getElementById('movie-title');
 const movieDetails = document.getElementById('movie-details');
@@ -15,6 +15,35 @@ const movieDetails = document.getElementById('movie-details');
 searchButton.addEventListener('click', searchMovies);
 resultsContainer.addEventListener('click', handleResultClick);
 modalOverlay.addEventListener('click', closeModal);
+window.addEventListener('scroll', handleScroll);
+closeButton.addEventListener('click', closeModal);
+const scrollToTopButton = document.getElementById('scroll-to-top-button');
+
+// Show or hide the scroll-to-top button based on the scroll position
+function toggleScrollToTopButton() {
+  if (window.scrollY > 200) {
+    scrollToTopButton.style.display = 'block';
+  } else {
+    scrollToTopButton.style.display = 'none';
+  }
+}
+
+// Scroll to the top of the page when the button is clicked
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Add event listeners
+window.addEventListener('scroll', toggleScrollToTopButton);
+scrollToTopButton.addEventListener('click', scrollToTop);
+
+
+
+// Variables
+let currentPage = 1; // Track the current page of results
+const resultsPerPage = 5; // Number of results per page
+let totalResults = 0; // Total number of results
+let isLoading = false; // Flag to prevent multiple simultaneous API requests
 
 // Functions
 
@@ -22,14 +51,32 @@ modalOverlay.addEventListener('click', closeModal);
 function searchMovies() {
   const searchTerm = searchInput.value.trim();
 
-  // Clear previous results
+  // Clear previous results and reset pagination variables
   resultsContainer.innerHTML = '';
+  currentPage = 1;
+  totalResults = 0;
+
+  // Make API request for the first page of results
+  fetchMovies(searchTerm, currentPage);
+}
+
+// Fetch movies from the API
+function fetchMovies(searchTerm, page) {
+  if (isLoading) return;
+
+  isLoading = true;
+
+  // Simulate loading state
+  showLoadingState();
+
+  const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(searchTerm)}&page=${page}`;
 
   // Make API request
-  fetch(`https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(searchTerm)}`)
+  fetch(url)
     .then(response => response.json())
     .then(data => {
       if (data.Response === 'True') {
+        totalResults = parseInt(data.totalResults);
         displayResults(data.Search);
       } else {
         displayError('No results found.');
@@ -38,6 +85,10 @@ function searchMovies() {
     .catch(error => {
       displayError('An error occurred. Please try again later.');
       console.error(error);
+    })
+    .finally(() => {
+      isLoading = false;
+      hideLoadingState();
     });
 }
 
@@ -117,8 +168,6 @@ function fetchMovieDetails(movieId, detailsButton) {
     });
 }
 
-
-
 // Display additional movie details in the modal
 function displayMovieDetails(movie) {
   movieTitle.textContent = movie.Title;
@@ -146,7 +195,6 @@ function displayMovieDetailsError(errorMessage) {
   detailsContainer.style.display = 'block';
 }
 
-
 // Show the modal
 function showModal() {
   modalOverlay.style.display = 'block';
@@ -163,3 +211,46 @@ function displayError(message) {
   errorText.textContent = message;
   resultsContainer.appendChild(errorText);
 }
+
+// Handle scroll event for infinite scroll
+function handleScroll() {
+  const scrollPosition = window.innerHeight + window.scrollY;
+  const containerHeight = resultsContainer.offsetHeight;
+
+  if (scrollPosition >= containerHeight && !isLoading && totalResults > resultsPerPage) {
+    currentPage++;
+    fetchMovies(searchInput.value.trim(), currentPage);
+  }
+}
+
+// Show loading state
+function showLoadingState() {
+  const loadingIndicator = document.createElement('div');
+  loadingIndicator.classList.add('loading-indicator');
+  loadingIndicator.textContent = 'Loading...';
+  resultsContainer.appendChild(loadingIndicator);
+}
+
+// Hide loading state
+function hideLoadingState() {
+  const loadingIndicator = document.querySelector('.loading-indicator');
+  if (loadingIndicator) {
+    loadingIndicator.remove();
+  }
+}
+
+// Delay function
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Delay before loading the next set of results
+const delayInMilliseconds = 2000;
+
+// Override the fetchMovies function to add a delay
+const originalFetchMovies = fetchMovies;
+fetchMovies = async (searchTerm, page) => {
+  originalFetchMovies(searchTerm, page);
+  await delay(delayInMilliseconds);
+};
+
