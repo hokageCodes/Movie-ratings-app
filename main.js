@@ -65,7 +65,7 @@ function fetchRandomMovies() {
       if (data.Response === 'True') {
         displayResults(data.Search);
       } else {
-        displayError('An error occurred while fetching random movies.');
+        displayError('Random movies suppose dey show here but bug wan kill me');
       }
     })
     .catch((error) => {
