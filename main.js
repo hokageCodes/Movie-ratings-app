@@ -6,7 +6,6 @@ const searchButton = document.getElementById('search-button');
 const resultsContainer = document.getElementById('results-container');
 const modalOverlay = document.querySelector('.modal-overlay');
 const closeButton = document.querySelector('.close-button');
-
 const modal = document.getElementById('modal');
 const movieTitle = document.getElementById('movie-title');
 const movieDetails = document.getElementById('movie-details');
@@ -18,6 +17,9 @@ modalOverlay.addEventListener('click', closeModal);
 window.addEventListener('scroll', handleScroll);
 closeButton.addEventListener('click', closeModal);
 const scrollToTopButton = document.getElementById('scroll-to-top-button');
+window.addEventListener('load', fetchRandomMovies);
+
+
 
 // Show or hide the scroll-to-top button based on the scroll position
 function toggleScrollToTopButton() {
@@ -37,8 +39,6 @@ function scrollToTop() {
 window.addEventListener('scroll', toggleScrollToTopButton);
 scrollToTopButton.addEventListener('click', scrollToTop);
 
-
-
 // Variables
 let currentPage = 1; // Track the current page of results
 const resultsPerPage = 5; // Number of results per page
@@ -46,6 +46,37 @@ let totalResults = 0; // Total number of results
 let isLoading = false; // Flag to prevent multiple simultaneous API requests
 
 // Functions
+
+// Fetch random movies from the API
+function fetchRandomMovies() {
+  if (isLoading) return;
+
+  isLoading = true;
+
+  // Simulate loading state
+  showLoadingState();
+
+  const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=&type=movie&page=1&r=json&y=&plot=short`;
+
+  // Make API request
+  fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.Response === 'True') {
+        displayResults(data.Search);
+      } else {
+        displayError('An error occurred while fetching random movies.');
+      }
+    })
+    .catch((error) => {
+      displayError('An error occurred. Please try again later.');
+      console.error(error);
+    })
+    .finally(() => {
+      isLoading = false;
+      hideLoadingState();
+    });
+}
 
 // Perform a search when the user clicks the search button
 function searchMovies() {
@@ -56,8 +87,13 @@ function searchMovies() {
   currentPage = 1;
   totalResults = 0;
 
-  // Make API request for the first page of results
-  fetchMovies(searchTerm, currentPage);
+  if (searchTerm === '') {
+    // Fetch random movies
+    fetchRandomMovies();
+  } else {
+    // Make API request for the first page of search results
+    fetchMovies(searchTerm, currentPage);
+  }
 }
 
 // Fetch movies from the API
@@ -93,12 +129,26 @@ function fetchMovies(searchTerm, page) {
 }
 
 // Display the search results
+// Display the search results
 function displayResults(movies) {
+  if (movies.length === 0) {
+    displayNoResultsMessage();
+    return;
+  }
+
   movies.forEach(movie => {
     const movieCard = createMovieCard(movie);
     resultsContainer.appendChild(movieCard);
   });
 }
+
+// Display a message when there are no search results
+function displayNoResultsMessage() {
+  const message = document.createElement('p');
+  message.textContent = 'No results found.';
+  resultsContainer.appendChild(message);
+}
+
 
 // Create a movie card element
 function createMovieCard(movie) {
@@ -168,7 +218,7 @@ function fetchMovieDetails(movieId, detailsButton) {
     });
 }
 
-// Display additional movie details in the modal
+// Display movie details and additional movie details in the modal
 function displayMovieDetails(movie) {
   movieTitle.textContent = movie.Title;
 
@@ -181,6 +231,15 @@ function displayMovieDetails(movie) {
     <p><strong>Runtime:</strong> ${movie.Runtime}</p>
     <p><strong>IMDb Rating:</strong> ${movie.imdbRating}</p>
   `;
+}
+
+// Expand the plot text to show the full content
+function expandPlotText() {
+  const plotTextElement = document.getElementById('plot-text');
+  const fullText = movieDetails.querySelector('p').querySelector('span').textContent;
+
+  plotTextElement.textContent = fullText;
+  plotTextElement.removeEventListener('click', expandPlotText);
 }
 
 // Display movie details error function
@@ -219,38 +278,23 @@ function handleScroll() {
 
   if (scrollPosition >= containerHeight && !isLoading && totalResults > resultsPerPage) {
     currentPage++;
-    fetchMovies(searchInput.value.trim(), currentPage);
+    const searchTerm = searchInput.value.trim();
+    fetchMovies(searchTerm, currentPage);
   }
 }
 
-// Show loading state
+// Show the loading state
 function showLoadingState() {
-  const loadingIndicator = document.createElement('div');
-  loadingIndicator.classList.add('loading-indicator');
-  loadingIndicator.textContent = 'Loading...';
-  resultsContainer.appendChild(loadingIndicator);
+  const loadingText = document.createElement('p');
+  loadingText.textContent = 'Loading...';
+  loadingText.classList.add('loading-text');
+  resultsContainer.appendChild(loadingText);
 }
 
-// Hide loading state
+// Hide the loading state
 function hideLoadingState() {
-  const loadingIndicator = document.querySelector('.loading-indicator');
-  if (loadingIndicator) {
-    loadingIndicator.remove();
+  const loadingText = resultsContainer.querySelector('.loading-text');
+  if (loadingText) {
+    loadingText.remove();
   }
 }
-
-// Delay function
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-// Delay before loading the next set of results
-const delayInMilliseconds = 2000;
-
-// Override the fetchMovies function to add a delay
-const originalFetchMovies = fetchMovies;
-fetchMovies = async (searchTerm, page) => {
-  originalFetchMovies(searchTerm, page);
-  await delay(delayInMilliseconds);
-};
-
