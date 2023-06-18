@@ -127,10 +127,12 @@ h1 {
   transform: translate(-50%, -50%);
   width: 80%;
   max-width: 800px;
-  background-color: #fff;
+  background-color: #000;
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: wheat;
+  font-weight: 900;
 }
 
 .modal-content {
