@@ -92,13 +92,14 @@ function searchMovies() {
     // Fetch random movies
     fetchRandomMovies();
   } else {
-    // Make API request for the first page of search results
-    fetchMovies(searchTerm, currentPage);
+    // Fetch movies from the OMDB API
+    fetchMovies(searchTerm);
   }
 }
 
-// Fetch movies from the API
-function fetchMovies(searchTerm, page) {
+
+// Fetch random movies by popularity from the TMDB API
+function fetchTMBDandomMovies() {
   if (isLoading) return;
 
   isLoading = true;
@@ -106,20 +107,21 @@ function fetchMovies(searchTerm, page) {
   // Simulate loading state
   showLoadingState();
 
-  const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(searchTerm)}&page=${page}`;
+  const randomPage = Math.floor(Math.random() * 500) + 1; // Generate a random page number (assuming a total of 500 pages)
+
+  const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${randomPage}&sort_by=popularity.desc&api_key=${apiKeytmdb}`;
 
   // Make API request
   fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      if (data.Response === 'True') {
-        totalResults = parseInt(data.totalResults);
-        displayResults(data.Search);
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.results && data.results.length > 0) {
+        displayResults(data.results, 'random-movies-container');
       } else {
-        displayError('No results found.');
+        displayError('An error occurred while fetching random movies.');
       }
     })
-    .catch(error => {
+    .catch((error) => {
       displayError('An error occurred. Please try again later.');
       console.error(error);
     })
@@ -129,7 +131,17 @@ function fetchMovies(searchTerm, page) {
     });
 }
 
-// Display the search results
+// Call fetchOMDBRandomMovies to start fetching movies
+fetchTMBDandomMovies();
+
+
+
+// Call fetchRandomMovies to start fetching movies
+fetchRandomMovies();
+
+
+
+
 // Display the search results
 function displayResults(movies) {
   if (movies.length === 0) {
@@ -192,32 +204,46 @@ function handleResultClick(event) {
   }
 }
 
-// Fetch movie details function
-function fetchMovieDetails(movieId, detailsButton) {
-  const url = `https://www.omdbapi.com/?apikey=${apiKey}&i=${movieId}&plot=full`;
+// Fetch movies from the API
+function fetchMovies(searchTerm, page) {
+  if (isLoading) return;
 
-  detailsButton.textContent = 'Loading...';
-  detailsButton.disabled = true;
+  isLoading = true;
 
+  // Simulate loading state
+  showLoadingState();
+
+  const url = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(searchTerm)}&page=${page}`;
+
+  // Make API request
   fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
+    .then(response => response.json())
+    .then(data => {
       if (data.Response === 'True') {
-        displayMovieDetails(data);
-        showModal(); // Show the modal after fetching and displaying the details
+        totalResults = parseInt(data.totalResults);
+        displayResults(data.Search);
       } else {
-        displayMovieDetailsError(data.Error);
+        displayError('No results found.');
       }
     })
-    .catch((error) => {
-      console.log(error);
-      displayMovieDetailsError('An error occurred while fetching movie details.');
+    .catch(error => {
+      displayError('An error occurred. Please try again later.');
+      console.error(error);
     })
     .finally(() => {
-      detailsButton.textContent = 'View Details';
-      detailsButton.disabled = false;
+      isLoading = false;
+      hideLoadingState();
     });
 }
+
+// Display the search results
+function displayResults(movies) {
+  movies.forEach(movie => {
+    const movieCard = createMovieCard(movie);
+    resultsContainer.appendChild(movieCard);
+  });
+}
+
 
 // Display movie details and additional movie details in the modal
 function displayMovieDetails(movie) {
