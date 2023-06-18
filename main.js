@@ -162,14 +162,41 @@ function displayNoResultsMessage() {
   resultsContainer.appendChild(message);
 }
 
+function fetchMovieDetails(movieId, viewDetailsButton) {
+  const url = `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKeytmdb}`;
 
-// Create a movie card element
+  fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.id) {
+        displayMovieDetails(data);
+        showModal();
+      } else {
+        displayMovieDetailsError('An error occurred while fetching movie details.');
+      }
+    })
+    .catch((error) => {
+      displayMovieDetailsError('An error occurred. Please try again later.');
+      console.error(error);
+    });
+}
+
+
+// Create a movie card
 function createMovieCard(movie) {
   const movieCard = document.createElement('div');
   movieCard.classList.add('movie-card');
 
   const img = document.createElement('img');
-  img.src = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+  let posterUrl = '';
+  if (movie.poster_path) {
+    // TMDB API
+    posterUrl = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+  } else if (movie.Poster) {
+    // OMDB API
+    posterUrl = movie.Poster;
+  }
+  img.src = posterUrl;
   img.alt = movie.title;
   movieCard.appendChild(img);
 
@@ -178,7 +205,15 @@ function createMovieCard(movie) {
   movieCard.appendChild(title);
 
   const year = document.createElement('p');
-  year.textContent = movie.release_date;
+  let releaseDate = '';
+  if (movie.release_date) {
+    // TMDB API
+    releaseDate = movie.release_date;
+  } else if (movie.Year) {
+    // OMDB API
+    releaseDate = movie.Year;
+  }
+  year.textContent = releaseDate;
   movieCard.appendChild(year);
 
   const viewDetailsButton = document.createElement('button');
@@ -186,7 +221,7 @@ function createMovieCard(movie) {
   viewDetailsButton.textContent = 'View Details';
   viewDetailsButton.addEventListener('click', (event) => {
     event.stopPropagation(); // Prevent the click event from propagating to the movie card
-    const movieId = movie.id;
+    const movieId = movie.id || movie.imdbID; // Use the appropriate property based on the source
     fetchMovieDetails(movieId, viewDetailsButton);
   });
   movieCard.appendChild(viewDetailsButton);
