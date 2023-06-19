@@ -6,16 +6,16 @@ A live demo of the project can be accessed [here](https://movie-ratings-app.verc
 
 ## Screenshots
 
-![Home Page](https://drive.google.com/file/d/1b3jf7LXNeGcaWTBYVR04LcKJ2rPXOd4M/view?usp=sharing)
+![Home Page](./Homepage.png)
 When User Lands on the page
 
-![User Search](https://drive.google.com/file/d/11qQEGMcH0dUVUbVvwx2EWxaK8U80yH3Q/view?usp=sharing)
+![User Search](./search.png)
 When User makes a search
 
-![User Search](https://drive.google.com/file/d/1g7ajZH7exeW2MSf8rWjCoeQMSpAVJ5Lf/view?usp=sharing)
+![User clicks on view details](./search.png)
 When user clicks to view more details
 
-![User Search](https://drive.google.com/file/d/1oSX4a4slfCc-0ljG_Ldp9V2xcTZYpE27/view?usp=sharing)
+![Responsive user](./mobile.png)
 Mobile User
 
 ## Cloning the Project
