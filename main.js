@@ -282,14 +282,12 @@ function displayResults(movies) {
 
 // Display movie details and additional movie details in the modal
 function displayMovieDetails(movie) {
+  console.log(movie)
   movieTitle.textContent = movie.title;
 
   movieDetails.innerHTML = `
     <p><strong>Plot:</strong> ${movie.overview}</p>
-    <p><strong>Director:</strong> ${getDirectors(movie)}</p>
-    <p><strong>Actors:</strong> ${getActors(movie)}</p>
     <p><strong>Genre:</strong> ${getGenres(movie)}</p>
-    <p><strong>Released:</strong> ${movie.release_date}</p>
     <p><strong>Runtime:</strong> ${movie.runtime} minutes</p>
     <p><strong>TMDB Rating:</strong> ${movie.vote_average}</p>
   `;
