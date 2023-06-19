@@ -12,11 +12,10 @@ When User Lands on the page
 ![User Search](./search.png)
 When User makes a search
 
-![User clicks on view details](./search.png)
+![User clicks on view details](./modal.png)
 When user clicks to view more details
 
-![Responsive user](./mobile.png)
-Mobile User
+
 
 ## Cloning the Project
 
