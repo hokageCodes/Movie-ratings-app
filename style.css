@@ -10,14 +10,19 @@ body {
 
 header {
   background-color: rebeccapurple;
+  height: 10vh;
   padding: 20px;
   text-align: center;
+  animation: fadeIn 1s ease;
 }
 
-h1 {
-  margin: 0;
-  font-size: 24px;
-  color: #fff;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 #search-container {
@@ -33,15 +38,15 @@ h1 {
   flex: 1;
   max-width: 500px;
   border: none;
-  background-color: #000;
-  color: #fff;
+  background-color: #fff;
+  color: #000;
 }
 
 #search-button {
   padding: 15px 30px;
   font-size: 18px;
-  background-color: #fff;
-  color: #000;
+  background-color: #000;
+  color: #fff;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -69,6 +74,7 @@ h1 {
   background-color: rebeccapurple;
   text-align: center;
   transition: transform 0.3s ease;
+  color: #fff; /* Changed text color to white */
 }
 
 .movie-card:hover {
@@ -85,17 +91,15 @@ h1 {
 .movie-card p {
   position: relative;
   z-index: 1;
-  color: #fff;
+  margin: 10px 0; /* Added some margin for better readability */
 }
 
 .movie-card p {
-  margin-top: 5px;
   font-size: 14px;
-  color: #aaa;
 }
 
 .view-details-button {
-  height: 47px;
+  height: 40px; /* Reduced height for better fit */
   width: 100%;
   border-radius: 8px;
   margin-top: 10px;
@@ -131,12 +135,12 @@ h1 {
   transform: translate(-50%, -50%);
   width: 80%;
   max-width: 800px;
-  background-color: #000;
-  border: 2px solid wheat;
+  background-color: #333;
+  border: 2px solid rebeccapurple;
   padding: 20px;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  color: wheat;
+  color: #999;
   font-weight: 900;
 }
 
@@ -154,11 +158,6 @@ h1 {
   cursor: pointer;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
 
 #scroll-to-top-button {
   display: none;
@@ -179,13 +178,6 @@ h1 {
 
 #scroll-to-top-button:hover {
   opacity: 0.8;
-}
-
-/* Additional styles for the advertisement cards */
-
-.advertisement-card {
-  background-color: #f5f5f5;
-  /* Add any additional styling as desired */
 }
 
 @media screen and (min-width: 374px) and (max-width: 415px) {
